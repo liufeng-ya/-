@@ -165,20 +165,23 @@ def color_in_range(base_color, new_color, tolerance=12):
     nr, ng, nb = new_color
     return (abs(br - nr) <= tolerance) and (abs(bg - ng) <= tolerance) and (abs(bb - nb) <= tolerance)
 
-def bite_check():
-    base_color_yellow = (250, 226, 100) #感叹号的颜色
-    t = 0
+def bite_check(timeout = 40):
+    base_color_yellow = (250, 226, 100)  # 感叹号的颜色
+    start_time = time.time() 
+    
     while True:
-        sleep_time = random.randint(1,5) / 100
+        sleep_time = random.randint(1, 5) / 100
         time.sleep(sleep_time)
-        t += 1
-        for h in range (-10, 11, 10):
-            for i in range(0, 200, 20): #范围检测，因为感叹号位置会随着视角变化而变化
+        
+        for h in range(-10, 11, 10):
+            for i in range(0, 200, 20):  # 范围检测
                 color_mark = get_pointer_color(CHECK_X3 + h, CHECK_Y3 + i)
                 if color_in_range(base_color_yellow, color_mark, tolerance=10):
                     print("有鱼咬钩！")
                     return True
-        if t >= 60:
+
+        # 判断是否超时
+        if time.time() - start_time >= timeout:
             return False
 '''
 def show_check_point(x, y):

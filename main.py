@@ -5,8 +5,11 @@ import ctypes
 import time
 import sys
 import random
+import traceback
 import pygetwindow as gw
 
+#import cv2
+#import numpy as np
 
 # 一些可能需要安装的东西
 try:
@@ -141,7 +144,7 @@ def move_mouse_abs(x, y):
 # -------------------------
 
 # 一些检查坐标
-CHECK_X, CHECK_Y = (0.5874 * window_width) + window_left, (0.9278 * window_height) + window_top # 橙色区域，用于检测张力表盘是否存在
+CHECK_X, CHECK_Y = (0.5 * window_width) + window_left + 100 + 50 * (window_width // 1800), (0.9478 * window_height) + window_top # 橙色区域，用于检测张力表盘是否存在
 CHECK_X2, CHECK_Y2 = (0.5444 * window_width) + window_left, (0.9067 * window_height) + window_top  # 绿色区域，用于检测是否快到张力上限
 CHECK_X3, CHECK_Y3 = (0.5083 * window_width) + window_left, (0.2811 * window_height) + window_top  # 感叹号的坐标，用于检测是否有鱼咬钩
 
@@ -170,29 +173,36 @@ def bite_check():
         time.sleep(sleep_time)
         t += 1
         for h in range (-10, 11, 10):
-            for i in range(0, 421, 20): #范围检测，因为感叹号位置会随着视角变化而变化
-                color_mark = get_pointer_color(CHECK_X3 + h, i + int(window_height/4.5))
+            for i in range(0, 200, 20): #范围检测，因为感叹号位置会随着视角变化而变化
+                color_mark = get_pointer_color(CHECK_X3 + h, CHECK_Y3 + i)
                 if color_in_range(base_color_yellow, color_mark, tolerance=10):
                     print("有鱼咬钩！")
                     return True
-        if t >= 45:
+        if t >= 60:
             return False
+'''
+def show_check_point(x, y):
+    # 截图
+    screenshot = pyautogui.screenshot()
+    img = np.array(screenshot)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
+    # 在图上画红色圈圈标记
+    cv2.circle(img, (x, y), 10, (0,0,255), 2)
+
+    # 显示窗口
+    cv2.imshow("Check Point", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+'''
+    
 def reel():
     # 改用底层注入的 left_down/left_up
-
-    start_time = time.time()
     base_color_green = (127, 181, 77) #这是张力表盘绿色区的颜色
     base_color_orange = (255, 195, 83) #这是张力表盘橙色区的颜色
     times = 0
 
     while True:
-        # 支持按 q 退出
-        if USE_KEYBOARD and keyboard.is_pressed('q'):
-            left_up()
-            print("检测到 q，退出并终止脚本")
-            sys.exit(0)
-
         try:
             color_exist = get_pointer_color(CHECK_X, CHECK_Y)
             color_bound = get_pointer_color(CHECK_X2, CHECK_Y2)
@@ -202,17 +212,22 @@ def reel():
             continue
 
         times += 1
-        time.sleep(0.1)  # 等待回落
+        time.sleep(random.randint(1,2)/10)  # 等待回落
 
-         # 超时 30s / 完成钓鱼 强制结束
-        if time.time() - start_time > 30 or (color_changed(base_color_orange, color_exist, tolerance=100) and times>=30):
+        #if times == 28:
+        #    show_check_point(CHECK_X, CHECK_Y)
+         # 完成钓鱼
+        if (color_changed(base_color_orange, color_exist, tolerance=100) and times>=30):
             print("结束本次钓鱼")
             left_up()
             break
+        
+        if times % 10 <=7:
+            left_down()
+        else:
+            left_up()
 
-        left_down()
-
-        if times % 15 == 0:
+        if times % 10 == 0:
             print("持续收杆中")
             
         if color_changed(base_color_green, color_bound, tolerance=40) and times>=30:
@@ -261,5 +276,7 @@ if __name__ == "__main__":
         while True:
             auto_fish_once()
             time.sleep(0.5)
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt，退出。")
+    except Exception:
+        print("似乎出了点问题，报错信息如下：\n")
+        traceback.print_exc()
+        input("\n请把报错信息截图并回车关闭程序...")

@@ -24,9 +24,10 @@
 |----|------|
 | `pyautogui` | 获取屏幕像素颜色 |
 | `pygetwindow` | 获取窗口位置和大小 |
-| `keyboard` | 没有用，但我还是导入了，我也不知道为什么 |
 | `pywin32` (`win32gui`) | 获取窗口客户区大小 |
 | `ctypes` | 注入鼠标事件（内置库，无需安装） |
+| `opencv` | 对感叹号图片进行比对 |
+| `numpy` | opencv库的依赖库 |
 
 ---
 
@@ -35,7 +36,7 @@
 打开命令行或 PowerShell，执行以下命令：
 
 ```bash
-pip install pyautogui keyboard pygetwindow pywin32
+pip install pyautogui keyboard pygetwindow pywin32 opencv-python numpy
 ```
 
 ## 使用方法

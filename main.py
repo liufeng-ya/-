@@ -8,8 +8,8 @@ import random
 import traceback
 import pygetwindow as gw
 
-#import cv2
-#import numpy as np
+import cv2
+import numpy as np
 
 # 一些可能需要安装的东西
 try:
@@ -165,21 +165,57 @@ def color_in_range(base_color, new_color, tolerance=12):
     nr, ng, nb = new_color
     return (abs(br - nr) <= tolerance) and (abs(bg - ng) <= tolerance) and (abs(bb - nb) <= tolerance)
 
+# 读取模板（保持透明通道）
+template = cv2.imread("exclamation_mark.png", cv2.IMREAD_UNCHANGED)
+template_bgr = template[:, :, :3]        # RGB部分
+template_alpha = template[:, :, 3]       # alpha通道作为mask
+w, h = template_bgr.shape[1], template_bgr.shape[0]
+
+def exclamation_check(screenshot_region=None, threshold=0.6):
+    """
+    screenshot_region: 截图区域 (left, top, width, height)，默认全屏
+    threshold: 匹配阈值
+    """
+    # 截屏
+    if screenshot_region:
+        left, top, width, height = screenshot_region
+        screenshot = pyautogui.screenshot(region=(left, top, width, height))
+    else:
+        screenshot = pyautogui.screenshot()
+    
+    # 转为BGR
+    img_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+
+    # 模板匹配（使用alpha通道作为mask）
+    res = cv2.matchTemplate(img_bgr, template_bgr, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+    # 判断是否超过阈值
+    if max_val >= threshold:
+        return True
+    return False
+
 def bite_check(timeout = 40):
-    base_color_yellow = (250, 226, 100)  # 感叹号的颜色
+    #base_color_yellow = (250, 226, 100)  # 感叹号的颜色
     start_time = time.time() 
     
     while True:
         sleep_time = random.randint(1, 5) / 100
         time.sleep(sleep_time)
         
+        #新版通过OpenCV进行相似度比对
+        if exclamation_check(screenshot_region=(CHECK_X3-100, CHECK_Y3-50, 200, 300)): 
+            print("有鱼咬钩！")
+            return True
+        '''
+        #旧版感叹号检测-颜色比对
         for h in range(-10, 11, 10):
             for i in range(0, 200, 20):  # 范围检测
                 color_mark = get_pointer_color(CHECK_X3 + h, CHECK_Y3 + i)
                 if color_in_range(base_color_yellow, color_mark, tolerance=10):
                     print("有鱼咬钩！")
                     return True
-
+        '''
         # 判断是否超时
         if time.time() - start_time >= timeout:
             return False

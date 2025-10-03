@@ -85,6 +85,7 @@ epic_count = 0
 rare_count = 0
 extraordinary_count = 0
 standard_count = 0
+unknown_count = 0  # 新增：未知稀有度
 airforce_count = 0
 
 # 稀有度前景颜色映射 (最接近 RGB 的 16 色)
@@ -160,6 +161,7 @@ CHECK_X2, CHECK_Y2 = get_abs_coord(COORDS_CONFIG["green_zone"][0], COORDS_CONFIG
 CHECK_X3, CHECK_Y3 = get_abs_coord(COORDS_CONFIG["bite_mark"][0], COORDS_CONFIG["bite_mark"][1])
 
 cprint(f"计算坐标: 橙色区({CHECK_X}, {CHECK_Y}), 绿色边界({CHECK_X2}, {CHECK_Y2}), 感叹号({CHECK_X3}, {CHECK_Y3})", C_DEBUG)
+
 # 窗口位置检测计数器
 window_check_counter = 0
 window_check_frequency = 10  # 每10次操作检测一次窗口位置
@@ -196,11 +198,11 @@ def update_window_position():
             
             # 重新计算检测坐标
             global CHECK_X, CHECK_Y, CHECK_X2, CHECK_Y2, CHECK_X3, CHECK_Y3
-            CHECK_X, CHECK_Y = get_abs_coord(COORDS_CONFIG["orange_zone"][0], COORDS_CONFIG["orange_zone"][1])
+            CHECK_X, CHECK_Y = get_abs_coord(COORDS_CONFIG["orange_zone"][0], COORDS_CONFIG["orange_zone"][1], is_orange_zone=True)
             CHECK_X2, CHECK_Y2 = get_abs_coord(COORDS_CONFIG["green_zone"][0], COORDS_CONFIG["green_zone"][1])
             CHECK_X3, CHECK_Y3 = get_abs_coord(COORDS_CONFIG["bite_mark"][0], COORDS_CONFIG["bite_mark"][1])
             
-            cprint(f"已更新坐标: 橙色区({CHECK_X}, {CHECK_Y}), 绿色边界({CHECK_X2}, {CHECK_Y2}), 感叹号({CHECK_X3}, {CHECK_Y3})", C_DEBUG)
+            cprint(f"已更新坐标 (优化版): 橙色区({CHECK_X}, {CHECK_Y}), 绿色边界({CHECK_X2}, {CHECK_Y2}), 感叹号({CHECK_X3}, {CHECK_Y3})", C_DEBUG)
         
         window_check_counter = 0  # 重置计数器
         return True
@@ -396,67 +398,163 @@ def detect_fish_rarity(region, threshold=0.1, tolerance=5):
     
     return best_rarity
 
-# 读取模板（保持透明通道）
+def detect_fish_indicator(region, threshold=0.05):
+    """检测指定区域内是否有浅棕色或明黄色（判断是否钓到鱼的后备检测）
+    Args:
+        region: (top, left, bottom, right) 区域坐标
+        threshold: 匹配像素占比阈值 (默认5%)
+    Returns:
+        bool: True表示检测到鱼的指示颜色，False表示未检测到
+    """
+    # 定义指示颜色
+    light_brown = (199, 118, 38)   # 浅棕色，容差±5
+    bright_yellow = (255, 232, 79)  # 明黄色，容差±10
+    
+    top, left, bottom, right = region
+    total_pixels = (bottom - top) * (right - left)
+    if total_pixels <= 0:
+        return False
+    
+    brown_count = 0
+    yellow_count = 0
+    sample_count = 0
+    step = 10  # 步长为10的顺序采样
+    
+    cprint(f"开始检测鱼指示颜色（浅棕/明黄）在区域 {region}...", C_DEBUG)
+    
+    for y in range(top, bottom, step):
+        for x in range(left, right, step):
+            try:
+                color = get_pointer_color(x, y)
+                # 检查浅棕色（容差±5）
+                if color_in_range(light_brown, color, tolerance=5):
+                    brown_count += 1
+                # 检查明黄色（容差±10）
+                elif color_in_range(bright_yellow, color, tolerance=10):
+                    yellow_count += 1
+                sample_count += 1
+            except Exception as e:
+                cprint(f"采样点 ({x}, {y}) 颜色获取失败: {e}", C_DEBUG)
+                sample_count += 1
+    
+    if sample_count == 0:
+        return False
+    
+    brown_ratio = brown_count / sample_count
+    yellow_ratio = yellow_count / sample_count
+    
+    cprint(f"浅棕色: {brown_count}/{sample_count} ({brown_ratio:.2%})", C_DEBUG)
+    cprint(f"明黄色: {yellow_count}/{sample_count} ({yellow_ratio:.2%})", C_DEBUG)
+    
+    # 任一颜色超过阈值即判定为检测到鱼
+    if brown_ratio >= threshold or yellow_ratio >= threshold:
+        cprint(f"检测到鱼指示颜色 (浅棕{brown_ratio:.2%} 或 明黄{yellow_ratio:.2%} ≥ {threshold:.2%})", C_DEBUG)
+        return True
+    
+    cprint(f"未检测到足够鱼指示颜色 (阈值 {threshold:.2%})", C_DEBUG)
+    return False
+# --- 混合匹配咬钩检测 ---
+cprint("初始化混合匹配检测...", C_INFO)
+
+# 1. 定义精确的搜索区域 (ROI)
+center_x, center_y = window_left + window_width // 2, window_top + window_height // 2
+roi_width = int(window_width * 0.08 * 2)
+roi_height = int(window_height * 0.40)
+roi_x = center_x - roi_width // 2
+roi_y = center_y - roi_height
+roi_search_area = (roi_x, roi_y, roi_width, roi_height)
+cprint(f"颜色定位搜索区域 (ROI): x={roi_x}, y={roi_y}, w={roi_width}, h={roi_height}", C_DEBUG)
+
+# 2. 定义黄色HSV范围
+LOWER_YELLOW = np.array([22, 120, 200])
+UPPER_YELLOW = np.array([28, 255, 255])
+
+# 3. 读取OpenCV模板（保持透明通道）
 template = cv2.imread("exclamation_mark.png", cv2.IMREAD_UNCHANGED)
 template_bgr = template[:, :, :3]        # RGB部分
 template_alpha = template[:, :, 3]       # alpha通道作为mask
 w, h = template_bgr.shape[1], template_bgr.shape[0]
+cprint(f"已加载模板 'exclamation_mark.png' (大小: {w}x{h})", C_DEBUG)
 
-def exclamation_check(screenshot_region=None):
-    """
-    执行模板匹配并返回最大匹配度值。
-    """
-    # 截屏
-    if screenshot_region:
-        left, top, width, height = screenshot_region
-        screenshot = pyautogui.screenshot(region=(left, top, width, height))
-    else:
-        screenshot = pyautogui.screenshot()
+def find_yellow_blob(img_bgr):
+    """在图中寻找最大的黄色像素簇，返回其中心点"""
+    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, LOWER_YELLOW, UPPER_YELLOW)
     
-    # 转为BGR
-    img_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+    # 寻找轮廓
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    if not contours:
+        return None
 
-    # 模板匹配（使用alpha通道作为mask）
-    res = cv2.matchTemplate(img_bgr, template_bgr, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
+    # 找到最大的轮廓
+    largest_contour = max(contours, key=cv2.contourArea)
+    
+    # 如果最大的轮廓太小，也忽略
+    if cv2.contourArea(largest_contour) < 50:
+        return None
+        
+    # 计算中心点
+    M = cv2.moments(largest_contour)
+    if M["m00"] == 0:
+        return None
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+    
+    return (cx, cy)
+
+def verify_with_opencv(img_bgr, center_point, threshold=0.5):
+    """在候选中心点周围的小区域内进行OpenCV模板匹配验证"""
+    # 定义一个紧密包裹感叹号的小ROI
+    verify_roi_w, verify_roi_h = 100, 200
+    vx = center_point[0] - verify_roi_w // 2
+    vy = center_point[1] - verify_roi_h // 2
+    
+    # 确保ROI在图像范围内
+    vx = max(0, vx)
+    vy = max(0, vy)
+    
+    # 从原始大图中截取小ROI
+    img_roi = img_bgr[vy:vy+verify_roi_h, vx:vx+verify_roi_w]
+    
+    if img_roi.shape[0] < 1 or img_roi.shape[1] < 1:
+        return False
+
+    # 在小ROI上进行模板匹配
+    res = cv2.matchTemplate(img_roi, template_bgr, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
     _, max_val, _, _ = cv2.minMaxLoc(res)
-    return max_val
+    
+    
+    return max_val >= threshold
 
 # --- 核心钓鱼逻辑 ---
 def bite_check():
-    """检测鱼是否咬钩（寻找黄色感叹号）"""
-    cprint(f"等待鱼咬钩...", C_STATUS)
-    
-    match_count = 0
-    threshold = 0.6  # 匹配阈值
+    """混合模式检测鱼是否咬钩（先黄色定位，再OpenCV验证）"""
+    cprint(f"等待鱼咬钩 (混合模式: 黄色定位 + OpenCV验证)...", C_STATUS)
     timeout = 40
     start_time = time.time()
-
+    
+    check_interval = 0.1  # 每0.1秒检测一次
+    
     while is_running:
-        # 检查窗口位置
-        check_window_position()
-        
-        if not is_running:
-            cprint("咬钩检测被中断", C_CONTROL)
-            return False
-        
-        # 降低检查频率 (原 sleep_time * 4)
-        sleep_time = random.randint(4, 20) / 100
-        time.sleep(sleep_time)
-        
-        match_count += 1
-        
-        # 执行模板匹配
-        match_val = exclamation_check(screenshot_region=(CHECK_X3-100, CHECK_Y3-50, 200, 300))
-        
-        is_success = match_val >= threshold
-        
-        # 每10次打印一次，或者成功时立即打印
-        if is_success or match_count % 10 == 0:
-            cprint(f"匹配次数: {match_count}, 匹配度: {match_val:.4f}, 阈值: {threshold}", C_DEBUG)
+        time.sleep(check_interval)
 
-        if is_success:
-            cprint("有鱼咬钩！", C_SUCCESS)
-            return True
+        # 1. 快速颜色定位
+        try:
+            screenshot = pyautogui.screenshot(region=roi_search_area)
+            img_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        except Exception as e:
+            cprint(f"截图失败: {e}", C_WARN)
+            continue
+            
+        blob_center = find_yellow_blob(img_bgr)
+        
+        if blob_center:
+            # 2. 精确OpenCV模板验证
+            if verify_with_opencv(img_bgr, blob_center, threshold=0.5):
+                cprint("有鱼咬钩！ (混合匹配成功)", C_SUCCESS)
+                time.sleep(random.uniform(0.1, 0.5))  # 匹配成功后随机等待0.1-0.5秒
+                return True
 
         # 判断是否超时
         if time.time() - start_time >= timeout:
@@ -464,6 +562,7 @@ def bite_check():
             return False
             
     cprint("咬钩检测被中断", C_CONTROL)
+    return False
     return False
 
 def reel():
@@ -510,7 +609,7 @@ def reel():
             cprint(f"检测到张力表盘消失，准备验证钓鱼结果...", C_STATUS)
             left_up()
             
-            # 等待0.4秒后进行单次检测
+            # 等待0.4秒后进入第一轮检测
             time.sleep(0.4)
 
             center_x = window_left + window_width // 2
@@ -527,15 +626,36 @@ def reel():
             
             region = (region_top, region_left, region_bottom, region_right)
             
-            cprint(f"检测鱼稀有度，区域: {region}", C_DEBUG)
-            rarity = detect_fish_rarity(region)
+            # 多轮检测逻辑（最多8秒）
+            max_wait_time = 8
+            elapsed_time = 0
+            check_interval = 1  # 每次检测间隔1秒
             
-            if rarity != 'airforce':
-                cprint(f"钓鱼成功！稀有度: {rarity}", C_SUCCESS)
-                return rarity
-            else:
-                cprint("似乎空军了……", C_WARN)
-                return 'airforce'
+            while elapsed_time < max_wait_time:
+                cprint(f"第{elapsed_time // check_interval + 1}轮检测鱼稀有度，区域: {region}", C_DEBUG)
+                rarity = detect_fish_rarity(region)
+                
+                if rarity != 'airforce':
+                    cprint(f"钓鱼成功！稀有度: {rarity}", C_SUCCESS)
+                    return rarity
+                
+                # 稀有度检测失败，尝试检测鱼指示颜色（浅棕色/明黄色）
+                cprint("稀有度检测失败，尝试检测鱼指示颜色...", C_DEBUG)
+                if detect_fish_indicator(region, threshold=0.05):
+                    cprint("钓到了鱼！但检测稀有度失败。", C_WARN)
+                    return 'unknown'  # 返回未知稀有度
+                
+                # 都未检测到，等待1秒后重试
+                if elapsed_time + check_interval < max_wait_time:
+                    cprint(f"未检测到鱼，{check_interval}秒后重试...", C_DEBUG)
+                    time.sleep(check_interval)
+                    elapsed_time += check_interval
+                else:
+                    break
+            
+            # 超时仍未检测到
+            cprint(f"检测超时（{max_wait_time}秒），判定为空军", C_WARN)
+            return 'airforce'
 
         # 条件2：超时
         if time.time() - start_time > 30:
@@ -555,7 +675,6 @@ def reel():
             cprint("持续收杆...", C_STATUS)
             
         # 条件3：张力过高，需要松手
-        # 条件3：张力过高，需要松手
         if times >= 30 and color_changed(base_color_green, color_bound, tolerance=40):
             try:
                 # 松手前再次确认张力表盘是否存在
@@ -564,7 +683,7 @@ def reel():
                     cprint(f"松手前检测到张力表盘消失，准备验证钓鱼结果...", C_STATUS)
                     left_up()
                     
-                    # 等待0.4秒后进行单次检测
+                    # 等待0.4秒后进入第一轮检测
                     time.sleep(0.4)
 
                     center_x = window_left + window_width // 2
@@ -581,15 +700,36 @@ def reel():
                     
                     region = (region_top, region_left, region_bottom, region_right)
                     
-                    cprint(f"检测鱼稀有度 (松手后)，区域: {region}", C_DEBUG)
-                    rarity = detect_fish_rarity(region)
-
-                    if rarity != 'airforce':
-                        cprint(f"钓鱼成功！稀有度: {rarity}", C_SUCCESS)
-                        return rarity
-                    else:
-                        cprint("似乎空军了……", C_WARN)
-                        return 'airforce'
+                    # 多轮检测逻辑（最多8秒）
+                    max_wait_time = 8
+                    elapsed_time = 0
+                    check_interval = 1  # 每次检测间隔1秒
+                    
+                    while elapsed_time < max_wait_time:
+                        cprint(f"第{elapsed_time // check_interval + 1}轮检测鱼稀有度 (松手后)，区域: {region}", C_DEBUG)
+                        rarity = detect_fish_rarity(region)
+                        
+                        if rarity != 'airforce':
+                            cprint(f"钓鱼成功！稀有度: {rarity}", C_SUCCESS)
+                            return rarity
+                        
+                        # 稀有度检测失败，尝试检测鱼指示颜色（浅棕色/明黄色）
+                        cprint("稀有度检测失败，尝试检测鱼指示颜色...", C_DEBUG)
+                        if detect_fish_indicator(region, threshold=0.05):
+                            cprint("钓到了鱼！但检测稀有度失败。", C_WARN)
+                            return 'unknown'  # 返回未知稀有度
+                        
+                        # 都未检测到，等待1秒后重试
+                        if elapsed_time + check_interval < max_wait_time:
+                            cprint(f"未检测到鱼，{check_interval}秒后重试...", C_DEBUG)
+                            time.sleep(check_interval)
+                            elapsed_time += check_interval
+                        else:
+                            break
+                    
+                    # 超时仍未检测到
+                    cprint(f"检测超时（{max_wait_time}秒），判定为空军", C_WARN)
+                    return 'airforce'
             except Exception as e:
                 cprint(f"松手前检查像素失败: {e}", C_WARN)
             
@@ -600,7 +740,7 @@ def reel():
             cprint("继续收杆", C_STATUS)
 def auto_fish_once():
     """执行一轮完整的自动钓鱼流程"""
-    global legendary_count, epic_count, rare_count, extraordinary_count, standard_count, airforce_count
+    global legendary_count, epic_count, rare_count, extraordinary_count, standard_count, unknown_count, airforce_count
     cprint("\n" + "="*20 + " 开始新一轮钓鱼 " + "="*20, C_INFO)
     
     # 1. 抛竿
@@ -654,17 +794,21 @@ def auto_fish_once():
             extraordinary_count += 1
         elif reel_result == 'standard':
             standard_count += 1
+        elif reel_result == 'unknown':
+            unknown_count += 1
     
     # 打印本次结果
     if reel_result == 'airforce':
         cprint("这次钓鱼空军", C_WARN)
+    elif reel_result == 'unknown':
+        cprint("这次钓到了鱼，但稀有度未知", C_WARN)
     else:
         chinese_rarity = {
-            'legendary': '传奇鱼',
-            'epic': '史诗鱼',
-            'rare': '稀有鱼',
-            'extraordinary': '非凡鱼',
-            'standard': '标准鱼'
+            'legendary': '传奇',
+            'epic': '史诗',
+            'rare': '稀有',
+            'extraordinary': '非凡',
+            'standard': '标准'
         }
         zh_name = chinese_rarity[reel_result]
         fg_color = rarity_fg_colors[reel_result]
@@ -673,7 +817,7 @@ def auto_fish_once():
         cprint("鱼", C_DEBUG)
     
     # 打印累计统计
-    total_fish = legendary_count + epic_count + rare_count + extraordinary_count + standard_count
+    total_fish = legendary_count + epic_count + rare_count + extraordinary_count + standard_count + unknown_count
     total_attempts = total_fish + airforce_count
     airforce_rate = (airforce_count / total_attempts * 100) if total_attempts > 0 else 0
     cprint("累计统计: ", C_DEBUG, end='')
@@ -682,6 +826,7 @@ def auto_fish_once():
     cprint(f"稀有{rare_count}条", rarity_fg_colors['rare'], end=', ')
     cprint(f"非凡{extraordinary_count}条", rarity_fg_colors['extraordinary'], end=', ')
     cprint(f"标准{standard_count}条", rarity_fg_colors['standard'], end=', ')
+    cprint(f"未知{unknown_count}条", C_WARN, end=', ')
     cprint(f"空军{airforce_count}次, 空军率{airforce_rate:.1f}%", C_DEBUG)
     
     cprint("="*20 + " 本轮钓鱼结束 " + "="*20, C_INFO)
@@ -691,7 +836,7 @@ def auto_fish_once():
 if __name__ == "__main__":
     cprint("="*50, C_INFO)
     cprint("猛兽派对 - 自动钓鱼脚本", C_INFO)
-    cprint("作者: Fox, 该版本有SammFang的改动", C_INFO)
+    cprint("作者: Fox, 由SammFang改版", C_INFO)
     cprint("="*50, C_INFO)
     cprint("\n请将游戏窗口置于前台，脚本开始后不要移动窗口。", C_WARN)
     cprint(f"按 Ctrl+L 可以暂停或恢复脚本。", C_WARN)

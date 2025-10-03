@@ -147,10 +147,12 @@ def move_mouse_abs(x, y):
 CHECK_X, CHECK_Y = (0.5 * window_width) + window_left + 100 + 50 * (window_width // 1800), (0.9478 * window_height) + window_top # 橙色区域，用于检测张力表盘是否存在
 CHECK_X2, CHECK_Y2 = (0.5444 * window_width) + window_left, (0.9067 * window_height) + window_top  # 绿色区域，用于检测是否快到张力上限
 CHECK_X3, CHECK_Y3 = (0.5083 * window_width) + window_left, (0.2811 * window_height) + window_top  # 感叹号的坐标，用于检测是否有鱼咬钩
+CHECK_X4, CHECK_Y4 = (0.4801 * window_width) + window_left, (0.1802 * window_height) +window_top  # 品质检测的左上坐标
 
 CHECK_X, CHECK_Y = int(CHECK_X), int(CHECK_Y)
 CHECK_X2, CHECK_Y2 = int(CHECK_X2), int(CHECK_Y2)
 CHECK_X3, CHECK_Y3 = int(CHECK_X3), int(CHECK_Y3)
+CHECK_X4, CHECK_Y4 = int(CHECK_X4), int(CHECK_Y4)
 
 def get_pointer_color(x, y):
     return pyautogui.pixel(x, y)
@@ -166,34 +168,35 @@ def color_in_range(base_color, new_color, tolerance=12):
     return (abs(br - nr) <= tolerance) and (abs(bg - ng) <= tolerance) and (abs(bb - nb) <= tolerance)
 
 # 读取模板（保持透明通道）
-template = cv2.imread("exclamation_mark.png", cv2.IMREAD_UNCHANGED)
-template_bgr = template[:, :, :3]        # RGB部分
-template_alpha = template[:, :, 3]       # alpha通道作为mask
-w, h = template_bgr.shape[1], template_bgr.shape[0]
+templates = {
+    "exclamation": {
+        "bgr": cv2.imread("exclamation_mark.png", cv2.IMREAD_UNCHANGED)[:, :, :3],
+        "mask": cv2.imread("exclamation_mark.png", cv2.IMREAD_UNCHANGED)[:, :, 3]
+    }
+}
 
-def exclamation_check(screenshot_region=None, threshold=0.6):
-    """
-    screenshot_region: 截图区域 (left, top, width, height)，默认全屏
-    threshold: 匹配阈值
-    """
+def template_check(template_name, screenshot_region=None, threshold=0.65):
+    if template_name not in templates:
+        raise ValueError(f"模板 {template_name} 未定义")
+
+    template_bgr = templates[template_name]["bgr"]
+    template_mask = templates[template_name]["mask"]
+
     # 截屏
     if screenshot_region:
         left, top, width, height = screenshot_region
         screenshot = pyautogui.screenshot(region=(left, top, width, height))
     else:
         screenshot = pyautogui.screenshot()
-    
-    # 转为BGR
+
     img_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
 
-    # 模板匹配（使用alpha通道作为mask）
-    res = cv2.matchTemplate(img_bgr, template_bgr, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
+    # 模板匹配
+    res = cv2.matchTemplate(img_bgr, template_bgr, cv2.TM_CCOEFF_NORMED, mask=template_mask)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
-    # 判断是否超过阈值
-    if max_val >= threshold:
-        return True
-    return False
+    #print(f"[{template_name}] 匹配阈值：{max_val}")
+    return max_val >= threshold
 
 def bite_check(timeout = 40):
     #base_color_yellow = (250, 226, 100)  # 感叹号的颜色
@@ -204,7 +207,7 @@ def bite_check(timeout = 40):
         time.sleep(sleep_time)
         
         #新版通过OpenCV进行相似度比对
-        if exclamation_check(screenshot_region=(CHECK_X3-100, CHECK_Y3-50, 200, 300)): 
+        if template_check("exclamation", screenshot_region=(CHECK_X3-100, CHECK_Y3-200, 200, 400)): 
             print("有鱼咬钩！")
             return True
         '''
@@ -219,21 +222,17 @@ def bite_check(timeout = 40):
         # 判断是否超时
         if time.time() - start_time >= timeout:
             return False
-'''
-def show_check_point(x, y):
-    # 截图
-    screenshot = pyautogui.screenshot()
-    img = np.array(screenshot)
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-    # 在图上画红色圈圈标记
-    cv2.circle(img, (x, y), 10, (0,0,255), 2)
-
-    # 显示窗口
-    cv2.imshow("Check Point", img)
-    cv2.waitKey(0)
+def show_check_region(region):
+    """
+    region: (left, top, width, height)
+    """
+    left, top, width, height = region
+    screenshot = pyautogui.screenshot(region=(left, top, width, height))
+    img = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)  # 转BGR显示
+    cv2.imshow("Check Region", img)
+    cv2.waitKey(0)  # 按任意键关闭窗口
     cv2.destroyAllWindows()
-'''
     
 def reel():
     # 改用底层注入的 left_down/left_up
@@ -275,8 +274,59 @@ def reel():
             sleep_time = random.randint(20,30) / 10 # random.randint(50,60) / 10
             time.sleep(sleep_time)
             
-
+def quality_check():
+    check_color = get_pointer_color(CHECK_X4, CHECK_Y4)
+    region = (CHECK_X4, CHECK_Y4, 50, 50)
+    show_check_region(region)
+    quality_color_map = {
+        "basic" : (191, 195, 202),
+        "uncommon" : (150, 204, 102),
+        "rare" : (128, 183, 247),
+        "epic" : (180, 122, 255),
+        "legancy" : (253, 203, 84)
+    }
+    if color_in_range(quality_color_map['basic'], check_color, tolerance=24): 
+        return "basic"
+    elif color_in_range(quality_color_map['uncommon'], check_color, tolerance=24): 
+        return "uncommon"
+    elif color_in_range(quality_color_map['rare'], check_color, tolerance=24): 
+        return "rare"
+    elif color_in_range(quality_color_map['epic'], check_color, tolerance=24): 
+        return "epic"
+    elif color_in_range(quality_color_map['legancy'], check_color, tolerance=24):  
+        return "legancy"
+    else:
+        return "null"
         
+def update_record(file_path):
+    quality = quality_check()
+    # 映射品质对应行
+    quality_map = {
+        "basic": "标准",
+        "uncommon": "非凡",
+        "rare": "稀有",
+        "epic": "史诗",
+        "legancy": "传奇",
+        "null": "未知"
+    }
+    print(f"本次品质: {quality_map[quality]}")
+    if quality == 'null':
+        return
+    # 读取文件
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    # 遍历每一行，找到对应品质并更新数量
+    for i, line in enumerate(lines):
+        if line.startswith(quality_map[quality]):
+            name, count = line.strip().split(":")
+            count = int(count.strip()) + 1
+            lines[i] = f"{name}: {count}\n"
+            break
+
+    # 写回文件
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.writelines(lines)
 
 def auto_fish_once():
 
@@ -296,6 +346,11 @@ def auto_fish_once():
     # 收杆
     reel()
 
+    time.sleep(1)
+    # 侦测品质
+    update_record(f"Log/{formatted_time}.txt")
+
+
     # 收鱼
     sleep_time = random.randint(15,25) / 10
     time.sleep(sleep_time)
@@ -311,7 +366,26 @@ def auto_fish_once():
 if __name__ == "__main__":
     print("请将窗口切回至猛兽派对，运行此脚本后不要移动猛兽派对窗口，不然需要重新运行此脚本")
     time.sleep(2)
+    start_fish_time = time.time() 
+    # 转为本地时间 struct_time
+    local_time = time.localtime(start_fish_time)
+    # 格式化为指定格式
+    formatted_time = time.strftime("%Y年%m月%d日 %H-%M-%S", local_time)
+    prepare_string = ("标准: 0",
+                      "非凡: 0",
+                      "稀有: 0",
+                      "史诗: 0",
+                      "传奇: 0")
     try:
+        if (window_width > 1920 or window_height > 1080):
+            raise ValueError("请将游戏窗口分辨率调整至1920*1080及以下，即长不高于1920且宽不高于1080")
+    except Exception:
+        print("似乎出了点问题，报错信息如下：\n")
+        traceback.print_exc()
+        input("\n请把报错信息截图并回车关闭程序...")
+    try:
+        with open(f"Log/{formatted_time}.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join(prepare_string) + "\n")
         while True:
             auto_fish_once()
             time.sleep(0.5)

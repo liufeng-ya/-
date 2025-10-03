@@ -6,6 +6,9 @@ import time
 import sys
 import random
 import pygetwindow as gw
+import json
+import os
+from datetime import datetime
 
 
 
@@ -79,6 +82,9 @@ C_CONTROL = FOREGROUND_BLUE   # 蓝色: 用户控制
 
 is_running = True  # 控制主循环是否运行
 
+# 统计文件路径
+STATISTICS_FILE = "statistics-content.json"
+
 # 鱼计数器
 legendary_count = 0
 epic_count = 0
@@ -94,8 +100,103 @@ rarity_fg_colors = {
     'epic': FOREGROUND_MAGENTA,          # 接近 (171,99,255)
     'rare': FOREGROUND_CYAN,             # 接近 (106,175,246)，使用青色
     'extraordinary': FOREGROUND_GREEN,   # 接近 (142,201,85)
-    'standard': FOREGROUND_WHITE         # 接近 (183,186,193)，使用白色
+    'standard': FOREGROUND_WHITE,        # 接近 (183,186,193)，使用白色
+    'unknown': FOREGROUND_MAGENTA        # 未知稀有度
 }
+
+# --- 统计功能 ---
+def load_statistics():
+    """从JSON文件加载统计数据"""
+    if not os.path.exists(STATISTICS_FILE):
+        return {"records": []}
+    
+    try:
+        with open(STATISTICS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        cprint(f"加载统计文件失败: {e}", C_WARN)
+        return {"records": []}
+
+def save_statistics(data):
+    """保存统计数据到JSON文件"""
+    try:
+        with open(STATISTICS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        cprint(f"保存统计文件失败: {e}", C_ERROR)
+
+def record_fishing_result(rarity):
+    """记录单次钓鱼结果"""
+    stats = load_statistics()
+    
+    record = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "rarity": rarity,
+        "is_airforce": rarity == 'airforce'
+    }
+    
+    stats["records"].append(record)
+    save_statistics(stats)
+    cprint(f"已记录钓鱼结果到 {STATISTICS_FILE}", C_DEBUG)
+
+def display_statistics():
+    """显示统计信息"""
+    stats = load_statistics()
+    records = stats.get("records", [])
+    
+    if not records:
+        cprint("暂无钓鱼统计数据", C_INFO)
+        return
+    
+    # 统计各稀有度数量
+    rarity_counts = {
+        'legendary': 0,
+        'epic': 0,
+        'rare': 0,
+        'extraordinary': 0,
+        'standard': 0,
+        'unknown': 0,
+        'airforce': 0
+    }
+    
+    for record in records:
+        rarity = record.get('rarity', 'airforce')
+        if rarity in rarity_counts:
+            rarity_counts[rarity] += 1
+    
+    total_attempts = len(records)
+    total_fish = sum(rarity_counts[r] for r in rarity_counts if r != 'airforce')
+    airforce_count_total = rarity_counts['airforce']
+    airforce_rate = (airforce_count_total / total_attempts * 100) if total_attempts > 0 else 0
+    
+    # 打印统计信息
+    cprint("\n" + "="*50, C_INFO)
+    cprint("📊 历史钓鱼统计", C_INFO)
+    cprint("="*50, C_INFO)
+    
+    chinese_rarity_names = {
+        'legendary': '传奇鱼',
+        'epic': '史诗鱼',
+        'rare': '稀有鱼',
+        'extraordinary': '非凡鱼',
+        'standard': '标准鱼',
+        'unknown': '未知鱼'
+    }
+    
+    # 逐行显示各稀有度统计
+    for rarity in ['legendary', 'epic', 'rare', 'extraordinary', 'standard', 'unknown']:
+        count = rarity_counts[rarity]
+        rate = (count / total_attempts * 100) if total_attempts > 0 else 0
+        zh_name = chinese_rarity_names[rarity]
+        color = rarity_fg_colors[rarity]
+        cprint(f"{zh_name}: {count}条 ({rate:.2f}%)", color)
+    
+    # 显示空军统计
+    cprint(f"空军: {airforce_count_total}次 ({airforce_rate:.2f}%)", C_WARN)
+    
+    # 显示总计
+    cprint(f"\n总钓鱼次数: {total_attempts}次", C_INFO)
+    cprint("="*50 + "\n", C_INFO)
 
 def toggle_run():
     """切换脚本的运行/暂停状态"""
@@ -741,6 +842,10 @@ def reel():
 def auto_fish_once():
     """执行一轮完整的自动钓鱼流程"""
     global legendary_count, epic_count, rare_count, extraordinary_count, standard_count, unknown_count, airforce_count
+    
+    # 显示统计信息
+    display_statistics()
+    
     cprint("\n" + "="*20 + " 开始新一轮钓鱼 " + "="*20, C_INFO)
     
     # 1. 抛竿
@@ -748,6 +853,18 @@ def auto_fish_once():
     left_down()
     sleep_time = random.uniform(3.0, 4.0)
     time.sleep(sleep_time)
+
+    #1.5 纠正身位
+    def async_press_a():
+        sleep_time1 = random.uniform(0.6, 2.1)
+        time.sleep(sleep_time1)
+        keyboard.press('a')
+        sleep_time2 = random.uniform(0.3, 0.5)
+        time.sleep(sleep_time2)
+        keyboard.release('a')
+    
+    async_thread = threading.Thread(target=async_press_a)
+    async_thread.start()
     left_up()
     cprint("抛竿完成", C_SUCCESS)
 
@@ -797,6 +914,9 @@ def auto_fish_once():
         elif reel_result == 'unknown':
             unknown_count += 1
     
+    # 记录钓鱼结果到JSON
+    record_fishing_result(reel_result)
+    
     # 打印本次结果
     if reel_result == 'airforce':
         cprint("这次钓鱼空军", C_WARN)
@@ -816,11 +936,11 @@ def auto_fish_once():
         cprint(zh_name, fg_color, end='')
         cprint("鱼", C_DEBUG)
     
-    # 打印累计统计
+    # 打印本次统计（基于内存计数器）
     total_fish = legendary_count + epic_count + rare_count + extraordinary_count + standard_count + unknown_count
     total_attempts = total_fish + airforce_count
     airforce_rate = (airforce_count / total_attempts * 100) if total_attempts > 0 else 0
-    cprint("累计统计: ", C_DEBUG, end='')
+    cprint("本次运行统计: ", C_DEBUG, end='')
     cprint(f"传奇{legendary_count}条", rarity_fg_colors['legendary'], end=', ')
     cprint(f"史诗{epic_count}条", rarity_fg_colors['epic'], end=', ')
     cprint(f"稀有{rare_count}条", rarity_fg_colors['rare'], end=', ')

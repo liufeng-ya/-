@@ -1,0 +1,29 @@
+{
+  "records": [
+    {
+      "timestamp": "2025-10-03 19:53:36",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-03 19:54:37",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-03 19:55:18",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-03 19:56:03",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-03 19:57:02",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    }
+  ]
+}

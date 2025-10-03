@@ -16,7 +16,8 @@ try:
     import pyautogui
 except Exception:
     print("请安装: pip install pyautogui")
-    raise
+    input("\n-----------------")
+    sys.exit(1)
 
 USE_KEYBOARD = True
 try:
@@ -24,13 +25,15 @@ try:
 except Exception:
     USE_KEYBOARD = False
     print("请安装: pip install keyboard")
-    raise
+    input("\n-----------------")
+    sys.exit(1)
 
 try:
     import win32gui
 except Exception:
     print("请安装: pip install win32gui")
-    raise
+    input("\n-----------------")
+    sys.exit(1)
 
 # -------------------------
 # 读取窗口大小/分辨率的相关定义
@@ -147,7 +150,7 @@ def move_mouse_abs(x, y):
 CHECK_X, CHECK_Y = (0.5 * window_width) + window_left + 100 + 50 * (window_width // 1800), (0.9478 * window_height) + window_top # 橙色区域，用于检测张力表盘是否存在
 CHECK_X2, CHECK_Y2 = (0.5444 * window_width) + window_left, (0.9067 * window_height) + window_top  # 绿色区域，用于检测是否快到张力上限
 CHECK_X3, CHECK_Y3 = (0.5083 * window_width) + window_left, (0.2811 * window_height) + window_top  # 感叹号的坐标，用于检测是否有鱼咬钩
-CHECK_X4, CHECK_Y4 = (0.4801 * window_width) + window_left, (0.1802 * window_height) +window_top  # 品质检测的左上坐标
+CHECK_X4, CHECK_Y4 = (0.4601 * window_width) + window_left, (0.1722 * window_height) +window_top  # 品质检测的左上坐标
 
 CHECK_X, CHECK_Y = int(CHECK_X), int(CHECK_Y)
 CHECK_X2, CHECK_Y2 = int(CHECK_X2), int(CHECK_Y2)
@@ -276,8 +279,8 @@ def reel():
             
 def quality_check():
     check_color = get_pointer_color(CHECK_X4, CHECK_Y4)
-    region = (CHECK_X4, CHECK_Y4, 50, 50)
-    show_check_region(region)
+    #region = (CHECK_X4, CHECK_Y4, 50, 50)
+    #show_check_region(region)
     quality_color_map = {
         "basic" : (191, 195, 202),
         "uncommon" : (150, 204, 102),
@@ -285,15 +288,15 @@ def quality_check():
         "epic" : (180, 122, 255),
         "legancy" : (253, 203, 84)
     }
-    if color_in_range(quality_color_map['basic'], check_color, tolerance=24): 
+    if color_in_range(quality_color_map['basic'], check_color, tolerance=28): 
         return "basic"
-    elif color_in_range(quality_color_map['uncommon'], check_color, tolerance=24): 
+    elif color_in_range(quality_color_map['uncommon'], check_color, tolerance=28): 
         return "uncommon"
-    elif color_in_range(quality_color_map['rare'], check_color, tolerance=24): 
+    elif color_in_range(quality_color_map['rare'], check_color, tolerance=28): 
         return "rare"
-    elif color_in_range(quality_color_map['epic'], check_color, tolerance=24): 
+    elif color_in_range(quality_color_map['epic'], check_color, tolerance=28): 
         return "epic"
-    elif color_in_range(quality_color_map['legancy'], check_color, tolerance=24):  
+    elif color_in_range(quality_color_map['legancy'], check_color, tolerance=28):  
         return "legancy"
     else:
         return "null"
@@ -364,7 +367,7 @@ def auto_fish_once():
 # 主循环
 # -------------------------
 if __name__ == "__main__":
-    print("请将窗口切回至猛兽派对，运行此脚本后不要移动猛兽派对窗口，不然需要重新运行此脚本")
+    print("请将窗口切回至猛兽派对，运行此脚本后不要移动猛兽派对窗口，不然需要重新运行此脚本\n推荐分辨率1440*900")
     time.sleep(2)
     start_fish_time = time.time() 
     # 转为本地时间 struct_time

@@ -376,14 +376,11 @@ if __name__ == "__main__":
                       "稀有: 0",
                       "史诗: 0",
                       "传奇: 0")
+
     try:
         if (window_width > 1920 or window_height > 1080):
             raise ValueError("请将游戏窗口分辨率调整至1920*1080及以下，即长不高于1920且宽不高于1080")
-    except Exception:
-        print("似乎出了点问题，报错信息如下：\n")
-        traceback.print_exc()
-        input("\n请把报错信息截图并回车关闭程序...")
-    try:
+
         with open(f"Log/{formatted_time}.txt", "w", encoding="utf-8") as f:
             f.write("\n".join(prepare_string) + "\n")
         while True:

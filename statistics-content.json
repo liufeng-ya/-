@@ -24,6 +24,721 @@
       "timestamp": "2025-10-03 19:57:02",
       "rarity": "extraordinary",
       "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:06:33",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:07:24",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:07:58",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:08:56",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:10:51",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:11:35",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:12:13",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:12:46",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:14:44",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:15:19",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:15:52",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:17:19",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:17:59",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:18:38",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:19:18",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:19:57",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:22:30",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:23:06",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:23:44",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:24:57",
+      "rarity": "airforce",
+      "is_airforce": true
+    },
+    {
+      "timestamp": "2025-10-04 00:25:52",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:26:26",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:27:01",
+      "rarity": "legendary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:28:16",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:28:59",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:29:42",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:30:20",
+      "rarity": "legendary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:30:52",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:31:29",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:32:08",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:32:41",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:33:15",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:33:47",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:34:38",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:35:12",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:35:44",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:36:18",
+      "rarity": "legendary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:36:52",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:37:27",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:38:01",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:38:34",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:39:08",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:39:42",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:40:15",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:40:47",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:45:00",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:45:35",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:46:53",
+      "rarity": "legendary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:47:35",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:48:10",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:48:46",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:49:30",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:50:03",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:55:02",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:56:04",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:57:22",
+      "rarity": "airforce",
+      "is_airforce": true
+    },
+    {
+      "timestamp": "2025-10-04 00:58:47",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 00:59:31",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:00:16",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:07:08",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:07:50",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:08:29",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:09:41",
+      "rarity": "airforce",
+      "is_airforce": true
+    },
+    {
+      "timestamp": "2025-10-04 01:10:35",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:11:08",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:12:04",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:12:59",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:13:46",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:14:24",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:15:08",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:15:47",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:16:20",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:17:05",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:17:55",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:18:41",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:20:54",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:21:34",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:22:28",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:23:24",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:24:06",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:24:45",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:25:26",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:26:13",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:26:48",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:27:27",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:28:09",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:28:44",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:29:41",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:30:26",
+      "rarity": "legendary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:31:14",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:32:02",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:32:44",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:33:39",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:34:20",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:34:55",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:35:29",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:36:04",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:38:18",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:39:12",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:39:59",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:40:38",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:41:22",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:41:57",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:42:37",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:43:15",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:44:00",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:44:37",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:45:12",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:45:47",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:46:21",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:47:16",
+      "rarity": "unknown",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:48:01",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:48:38",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:49:20",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:49:53",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:50:41",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:51:32",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 01:59:22",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 02:00:04",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:15:53",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:19:50",
+      "rarity": "airforce",
+      "is_airforce": true
+    },
+    {
+      "timestamp": "2025-10-04 11:28:45",
+      "rarity": "airforce",
+      "is_airforce": true
+    },
+    {
+      "timestamp": "2025-10-04 11:29:33",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:45:13",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:46:24",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:46:58",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:47:43",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:48:20",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:49:06",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:49:45",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:50:29",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:51:15",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:52:02",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:52:42",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:53:25",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:54:17",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:55:05",
+      "rarity": "epic",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:56:01",
+      "rarity": "extraordinary",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:56:35",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:57:11",
+      "rarity": "standard",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:57:51",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:58:29",
+      "rarity": "rare",
+      "is_airforce": false
+    },
+    {
+      "timestamp": "2025-10-04 11:59:19",
+      "rarity": "rare",
+      "is_airforce": false
     }
   ]
 }

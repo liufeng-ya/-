@@ -7,6 +7,7 @@
 ## `better_fisher` 版本主要改进
 
 这个版本在原脚本的基础上，增加了以下核心功能和优化：
+*better_fisher专为2560\*1440窗口设计,在1920\*1080、2560\*1080窗口中也可使用*
 
 1.  **逻辑修改**:
     *   **更智能的收杆逻辑**: 增加了多重判断来确认钓鱼是否完成（张力表盘消失），包括在"松手调张力"之前和之后都进行检测，有效避免了因单次检测失败而陷入无限循环的问题。
@@ -58,21 +59,31 @@
 
 | 库             | 作用                                 |
 | -------------- | ------------------------------------ |
-| `pyautogui`    | 获取屏幕像素颜色                     |
+| `pyautogui`    | 获取屏幕像素颜色、截图功能           |
 | `pygetwindow`  | 获取窗口位置和大小                   |
 | `keyboard`     | 监听键盘事件 (Ctrl+L, q)             |
-| `pywin32`      | 获取窗口客户区大小，设置控制台颜色 |
-| `ctypes`       | 注入底层鼠标事件（内置库）         |
-| `opencv-python`| OpenCV图像处理和模板匹配            |
-| `numpy`        | 数值计算和数组操作                  |
+| `pywin32`      | 获取窗口客户区大小，设置控制台颜色   |
+| `ctypes`       | 注入底层鼠标事件（内置库）           |
+| `opencv-python`| OpenCV图像处理和模板匹配             |
+| `numpy`        | 数值计算和数组操作                   |
 
 ### 安装依赖
 
-打开命令行 (CMD) 或 PowerShell，执行以下命令：
+**方法一：一键安装（推荐）**
+
+复制以下命令到命令行 (CMD) 或 PowerShell 中执行，将自动安装所有必需的依赖库：
 
 ```bash
 pip install pyautogui keyboard pygetwindow pywin32 opencv-python numpy
 ```
+
+**方法二：使用requirements.txt文件**
+
+在命令行中执行：
+```bash
+pip install -r requirements.txt
+```
+
 
 ### 使用方法
 

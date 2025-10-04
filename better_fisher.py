@@ -89,9 +89,10 @@ STATISTICS_FILE = "statistics-content.json"
 # 检查统计文件是否存在，如果不存在则禁用统计功能
 STATISTICS_ENABLED = os.path.exists(STATISTICS_FILE)
 if STATISTICS_ENABLED:
-    cprint(f"发现统计文件 {STATISTICS_FILE}，将记录钓鱼数据", C_SUCCESS)
+    cprint(f"发现统计文件 {STATISTICS_FILE}，统计功能已启用", C_SUCCESS)
 else:
-    cprint(f"未发现统计文件 {STATISTICS_FILE}，本次运行将不记录数据", C_WARN)
+    cprint(f"未发现统计文件 {STATISTICS_FILE}，统计功能已禁用", C_WARN)
+cprint(f"按 Ctrl+K 可以{'创建统计文件并' if not STATISTICS_ENABLED else ''}切换统计功能", C_INFO)
 
 # 鱼计数器
 legendary_count = 0
@@ -154,6 +155,12 @@ def record_fishing_result(rarity):
 
 def display_statistics():
     """显示统计信息"""
+    # 检查统计功能是否启用
+    if not STATISTICS_ENABLED:
+        cprint("统计功能已禁用，无法显示历史统计数据", C_INFO)
+        cprint("按 Ctrl+K 可以启用统计功能", C_INFO)
+        return
+        
     stats = load_statistics()
     records = stats.get("records", [])
     
@@ -222,12 +229,39 @@ def toggle_run():
     status = '停止' if not is_running else '恢复运行'
     cprint(f"\n程序已 {status} (快捷键: Ctrl+L)\n", C_CONTROL)
 
+def toggle_statistics():
+    """切换统计功能的启用/禁用状态"""
+    global STATISTICS_ENABLED
+    
+    # 如果统计文件不存在，创建它
+    if not os.path.exists(STATISTICS_FILE):
+        try:
+            # 创建初始统计文件
+            initial_data = {"records": []}
+            with open(STATISTICS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(initial_data, f, ensure_ascii=False, indent=2)
+            
+            # 更新统计功能状态
+            STATISTICS_ENABLED = True
+            cprint(f"已成功创建统计文件 {STATISTICS_FILE}，统计功能已启用", C_SUCCESS)
+        except Exception as e:
+            cprint(f"创建统计文件失败: {e}", C_ERROR)
+    else:
+        # 如果文件存在，切换统计功能状态
+        STATISTICS_ENABLED = not STATISTICS_ENABLED
+        status = '启用' if STATISTICS_ENABLED else '禁用'
+        cprint(f"统计功能已{status}", C_SUCCESS)
+
 def keyboard_listener():
-    """监听键盘事件，用于暂停/恢复脚本"""
+    """监听键盘事件，用于暂停/恢复脚本和切换统计功能"""
     while True:
-        if USE_KEYBOARD and keyboard.is_pressed('ctrl+l'):
-            toggle_run()
-            time.sleep(0.5)  # 防止按键重复检测
+        if USE_KEYBOARD:
+            if keyboard.is_pressed('ctrl+l'):
+                toggle_run()
+                time.sleep(0.5)  # 防止按键重复检测
+            elif keyboard.is_pressed('ctrl+k'):
+                toggle_statistics()
+                time.sleep(0.5)  # 防止按键重复检测
         time.sleep(0.1)
 
 # 在后台启动键盘监听线程
@@ -907,6 +941,11 @@ def auto_fish_once():
     # 显示统计信息
     display_statistics()
     
+    # 如果统计功能未启用，额外提示用户
+    if not STATISTICS_ENABLED:
+        cprint("注意: 当前未启用统计功能，钓鱼数据将不会被保存", C_WARN)
+        cprint("按 Ctrl+K 可以启用统计功能", C_INFO)
+    
     cprint("\n" + "="*20 + " 开始新一轮钓鱼 " + "="*20, C_INFO)
     
     # 1. 抛竿
@@ -1030,6 +1069,10 @@ def auto_fish_once():
     # 记录钓鱼结果到JSON
     record_fishing_result(reel_result)
     
+    # 如果统计功能未启用，提示用户可以启用统计功能
+    if not STATISTICS_ENABLED:
+        cprint("提示: 当前未记录统计数据，按 Ctrl+K 可以启用统计功能", C_INFO)
+    
     # 打印本次结果
     if reel_result == 'airforce':
         cprint("这次钓鱼空军", C_WARN)
@@ -1077,6 +1120,7 @@ if __name__ == "__main__":
     cprint("="*50, C_INFO)
     cprint("\n请将游戏窗口置于前台，脚本开始后不要移动窗口。", C_WARN)
     cprint(f"按 Ctrl+L 可以暂停或恢复脚本。", C_WARN)
+    cprint(f"按 Ctrl+K 可以{'创建统计文件并' if not STATISTICS_ENABLED else ''}切换统计功能。", C_INFO)
     cprint(f"按 'q' 可以紧急终止脚本。", C_WARN)
     
     for i in range(3, 0, -1):
